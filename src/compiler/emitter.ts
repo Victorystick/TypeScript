@@ -3373,7 +3373,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
                     }
                     else {
                         // this is top level converted loop so we need to create an alias for 'this' here
-                        // NOTE: 
+                        // NOTE:
                         // if converted loops were all nested in arrow function then we'll always emit '_this' so convertedLoopState.thisName will not be set.
                         // If it is set this means that all nested loops are not nested in arrow function and it is safe to capture 'this'.
                         write(`var ${convertedLoopState.thisName} = this;`);
@@ -5664,8 +5664,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
                 }
                 emitEnd(node);
 
-                if (node.kind === SyntaxKind.ClassDeclaration) {
-                    emitExportMemberAssignment(<ClassDeclaration>node);
+                if (node.kind === SyntaxKind.ClassDeclaration && (node.flags & NodeFlags.Export)) {
+                    if (modulekind === ModuleKind.ES6) {
+                        writeLine();
+                        write("export ");
+                        if (node.flags & NodeFlags.Default) {
+                            write("default ");
+                            emitDeclarationName(node);
+                        } else {
+                            write("{ ");
+                            emitDeclarationName(node);
+                            write(" }");
+                        }
+                        write(";");
+                    } else {
+                        emitExportMemberAssignment(<ClassDeclaration>node);
+                    }
                 }
             }
 
